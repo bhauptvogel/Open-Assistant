@@ -213,30 +213,33 @@ class AnthropicRLHF(Dataset):
 
         return dialogue
 
-    def __init__(self, split: str = "train") -> None:
+    def __init__(self, json_filename: str, split: str = "train") -> None:
         super().__init__()
+        import json
         assert split in ("train", "test")
         self.split = split
         self.data = []
-        dataset = load_dataset("Anthropic/hh-rlhf")[split]
+        # dateaset = load_dataset("Anthropic/hh-rlhf")[split]
 
-        for entry in dataset:
-            chosen = entry["chosen"]
+        with open(json_filename, "r", encoding="utf-8") as f:
+            for line in f:
+                entry = json.loads(line)
+                chosen = entry["chosen"]
 
-            if "Assistant" not in chosen:
-                continue
+                if "Assistant" not in chosen:
+                    continue
 
-            rejected = entry["rejected"]
-            chosen = self._split_dialogue(chosen)
-            rejected = self._split_dialogue(rejected)
-            assert rejected[0][0] == "Human" and chosen[0][0] == "Human"
+                rejected = entry["rejected"]
+                chosen = self._split_dialogue(chosen)
+                rejected = self._split_dialogue(rejected)
+                assert rejected[0][0] == "Human" and chosen[0][0] == "Human"
 
-            # only very few items have non matching lengths
-            if len(rejected) == len(chosen):
-                prefix = [line for (speaker, line) in chosen[:-1]]
-                good_reply = chosen[-1][1]  # last part of dialog, the text
-                bad_reply = rejected[-1][1]  # last part of dialog, the text
-                self.data.append((prefix, [good_reply, bad_reply]))
+                # only very few items have non matching lengths
+                if len(rejected) == len(chosen):
+                    prefix = [line for (speaker, line) in chosen[:-1]]
+                    good_reply = chosen[-1][1]  # last part of dialog, the text
+                    bad_reply = rejected[-1][1]  # last part of dialog, the text
+                    self.data.append((prefix, [good_reply, bad_reply]))
 
     def __len__(self) -> int:
         return len(self.data)

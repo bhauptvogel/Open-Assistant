@@ -103,6 +103,8 @@ def get_one_dataset(
     if mode == "rm":
         assert dataset_name in RM_DATASETS, f"Dataset {dataset_name} not supported for reward modeling"
 
+    print(f"Loading dataset {dataset_name} in mode {mode}")
+
     data_path = data_path or conf.cache_dir
     dataset_name = dataset_name.lower()
 
@@ -167,7 +169,7 @@ def get_one_dataset(
     elif dataset_name == "oig_file":
         train, eval = load_oig_file(val_split=val_split, **kwargs)
     elif dataset_name == "anthropic_rlhf":
-        train, eval = load_anthropic_rlhf()
+        train, eval = load_anthropic_rlhf(data_path + "/" + kwargs["input_file_path"])
     elif dataset_name == "shp":
         train, eval = load_shp()
     elif dataset_name == "hellaswag":

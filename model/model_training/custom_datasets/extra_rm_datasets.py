@@ -2,9 +2,9 @@ from model_training.custom_datasets.rank_datasets import AnthropicRLHF, HellaSwa
 from torch.utils.data import Dataset
 
 
-def load_anthropic_rlhf() -> tuple[Dataset, Dataset]:
-    train = AnthropicRLHF(split="train")
-    validation = AnthropicRLHF(split="test")
+def load_anthropic_rlhf(json_filename) -> tuple[Dataset, Dataset]:
+    train = AnthropicRLHF(json_filename, split="train")
+    validation = AnthropicRLHF(json_filename, split="test")
     return train, validation
 
 
